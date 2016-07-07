@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>the frist python flask</title>
+    <script src="/static/jquery-1.12.1.min.js"></script>
 </head>
 
 <body>
@@ -12,10 +13,66 @@ This is my first python
 {% else %}
     <h1>hello,word!</h1>
 {% endif %}
+
 <form method="post">
-    username:<input value="{{users.username}}" name="username" type="text"><br><br>
-    email:<input value="{{users.email}}" name="email" type="text">
+    username:<input value="" name="username" type="text"><br><br>
+    email:<input value="" name="email" type="text">
     <input type="submit">
-</form>
+</form><br>
+
+{% for user in users %}
+<p>
+username:<span class="username">{{user.username}}</span> email:<span class="email">{{user.email}}</span> <a class="edit" data-id="{{user.id}}">编辑</a>  <a class="delete" data-id="{{user.id}}">删除</a>
+</p>
+{% endfor %}
+
+<div id="edit_layout" style="display: none; border: 1px solid #666666; background:#ffffff;position: absolute;top:0;top: 50%;transform: translateY(-50%);left: 50%;transform: translateX(-50%);padding: 10px;">
+    <p>username:<input id="username" name="username"></p>
+    <p>email:<input id="email" name="email"></p>
+    <div>
+        <span id="close">关闭</span>
+        <span id="submit">提交</span>
+    </div>
+</div>
+<script>
+    var uid;
+    $("body").on("click",".delete",function(){
+        var uid = $(this).data("id");
+        $.get("/hello/" + uid + '/delete', function (e) {
+            if(e.errno == 200){
+                window.location.reload()
+            }
+            else{
+                alert(e.message)
+            }
+        });
+    });
+    $("body").on("click",".edit",function(){
+        uid = $(this).data("id");
+        var p = $(this).parent();
+        $("#edit_layout").css({"display":"block"});
+        $("#username").val(p.find(".username").text());
+        $("#email").val(p.find(".email").text());
+    });
+
+    $("#close").on("click",function(){
+        $("#edit_layout").css({"display":"none"});
+    });
+    $("#submit").on("click",function(){
+        var data = {};
+        $.each($("#edit_layout input"),function(i,value){
+            data[$(value).attr("name")] = $(value).val();
+        })
+        $.post("/hello/" + uid + '/edit', data , function (e) {
+            if(e.errno == 200){
+                window.location.reload()
+            }
+            else{
+                alert(e.message)
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

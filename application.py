@@ -10,7 +10,7 @@ app.config.from_object(DefaultConfig)
 
 db = SQLAlchemy(app)
 
-db.create_all()
+# db.create_all()
 
 
 
