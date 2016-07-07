@@ -26,6 +26,7 @@ username:<span class="username">{{user.username}}</span> email:<span class="emai
 </p>
 {% endfor %}
 
+<!--编辑弹出层-->
 <div id="edit_layout" style="display: none; border: 1px solid #666666; background:#ffffff;position: absolute;top:0;top: 50%;transform: translateY(-50%);left: 50%;transform: translateX(-50%);padding: 10px;">
     <p>username:<input id="username" name="username"></p>
     <p>email:<input id="email" name="email"></p>
@@ -35,43 +36,48 @@ username:<span class="username">{{user.username}}</span> email:<span class="emai
     </div>
 </div>
 <script>
-    var uid;
-    $("body").on("click",".delete",function(){
-        var uid = $(this).data("id");
-        $.get("/hello/" + uid + '/delete', function (e) {
-            if(e.errno == 200){
-                window.location.reload()
-            }
-            else{
-                alert(e.message)
-            }
-        });
+var uid;
+//删除操作
+$("body").on("click",".delete",function(){
+    var uid = $(this).data("id");
+    $.get("/hello/" + uid + '/delete', function (e) {
+        if(e.errno == 200){
+            alert("删除成功")
+            window.location.reload()
+        }
+        else{
+            alert(e.message)
+        }
     });
-    $("body").on("click",".edit",function(){
-        uid = $(this).data("id");
-        var p = $(this).parent();
-        $("#edit_layout").css({"display":"block"});
-        $("#username").val(p.find(".username").text());
-        $("#email").val(p.find(".email").text());
+});
+//编辑操作
+$("body").on("click",".edit",function(){
+    uid = $(this).data("id");
+    var p = $(this).parent();
+    $("#edit_layout").css({"display":"block"});
+    $("#username").val(p.find(".username").text());
+    $("#email").val(p.find(".email").text());
+});
+//点击关闭弹出层
+$("#close").on("click",function(){
+    $("#edit_layout").css({"display":"none"});
+});
+//点击编辑提交
+$("#submit").on("click",function(){
+    var data = {};
+    $.each($("#edit_layout input"),function(i,value){
+        data[$(value).attr("name")] = $(value).val();
+    })
+    $.post("/hello/" + uid + '/edit', data , function (e) {
+        if(e.errno == 200){
+            alert("编辑成功")
+            window.location.reload()
+        }
+        else{
+            alert(e.message)
+        }
     });
-
-    $("#close").on("click",function(){
-        $("#edit_layout").css({"display":"none"});
-    });
-    $("#submit").on("click",function(){
-        var data = {};
-        $.each($("#edit_layout input"),function(i,value){
-            data[$(value).attr("name")] = $(value).val();
-        })
-        $.post("/hello/" + uid + '/edit', data , function (e) {
-            if(e.errno == 200){
-                window.location.reload()
-            }
-            else{
-                alert(e.message)
-            }
-        });
-    });
+});
 </script>
 
 </body>
